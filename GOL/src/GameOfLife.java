@@ -8,6 +8,7 @@ public class GameOfLife extends JFrame {
 	private GOLField[][] fields;
 	private JPanel mainArray;
 	Thread GOLThread;
+	private boolean mouseclicked;
 
 	private ToggleClicked setSelected = new ToggleClicked();;
 
@@ -25,11 +26,19 @@ public class GameOfLife extends JFrame {
 			}
 		}
 	};
+	private JButton clearBtn = new JButton("Clear");
+	private ActionListener clearAllCells = new ActionListener() {
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			clearAll();
+		}
+	};
 
 	private int GOLxDim;
 	private int GOLyDim;
 	
-	private int speed = 10;
+	private int speed = 100;
 
 	public GameOfLife(int xDim, int yDim) {
 		super("GameOfLife");
@@ -59,7 +68,15 @@ public class GameOfLife extends JFrame {
 		
 		pauseBtn.addActionListener(pauseAction);
 		
-		this.add(pauseBtn, BorderLayout.SOUTH);
+		clearBtn.addActionListener(clearAllCells);
+		
+		JPanel actionPanel = new JPanel();
+		actionPanel.setLayout(new GridLayout(2,1));
+		
+		actionPanel.add(pauseBtn);
+		actionPanel.add(clearBtn);
+		
+		this.add(actionPanel, BorderLayout.SOUTH);
 
 		this.setVisible(true);
 		this.pack();
@@ -97,8 +114,8 @@ public class GameOfLife extends JFrame {
 			this.GOLx = x;
 			this.GOLy = y;
 
-			this.setBorder(BorderFactory.createLineBorder(Color.black));
-			this.setBackground(Color.getHSBColor(0, 1, 1));
+			this.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+			this.setBackground(Color.WHITE);
 		}
 
 		public void updateState() {
@@ -115,9 +132,9 @@ public class GameOfLife extends JFrame {
 				}
 			}
 			if (state) {
-				this.setBackground(Color.getHSBColor((float) 0.5, 1, 1));
+				this.setBackground(Color.ORANGE);
 			} else {
-				this.setBackground(Color.getHSBColor(0, 1, 1));
+				this.setBackground(Color.WHITE);
 			}
 		}
 
@@ -129,33 +146,45 @@ public class GameOfLife extends JFrame {
 	private class ToggleClicked implements MouseListener {
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			// TODO Auto-generated method stub
 
 		}
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			// TODO Auto-generated method stub
-
+			if (e.getComponent().getClass() == (new GOLField(0, 0)).getClass()) {
+				if	(mouseclicked) {
+					if (((GOLField) e.getComponent()).oldState) {
+						((GOLField) e.getComponent()).oldState = false;
+						((GOLField) e.getComponent()).state = false;
+						((GOLField) e.getComponent()).setBackground(Color.LIGHT_GRAY);
+					} else {
+						((GOLField) e.getComponent()).oldState = true;
+						((GOLField) e.getComponent()).state = true;
+						((GOLField) e.getComponent()).setBackground(Color.PINK);
+					}
+				}
+			} else {
+				JOptionPane.showMessageDialog(mainArray, "Component selected which was not a GOLField");
+			}
 		}
 
 		@Override
 		public void mouseExited(MouseEvent e) {
-			// TODO Auto-generated method stub
-
+			
 		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {
+			mouseclicked = true;
 			if (e.getComponent().getClass() == (new GOLField(0, 0)).getClass()) {
 				if (((GOLField) e.getComponent()).oldState) {
 					((GOLField) e.getComponent()).oldState = false;
 					((GOLField) e.getComponent()).state = false;
-					((GOLField) e.getComponent()).setBackground(Color.getHSBColor((float) 0.1, 1, 1));
+					((GOLField) e.getComponent()).setBackground(Color.LIGHT_GRAY);
 				} else {
 					((GOLField) e.getComponent()).oldState = true;
 					((GOLField) e.getComponent()).state = true;
-					((GOLField) e.getComponent()).setBackground(Color.getHSBColor((float) 0.6, 1, 1));
+					((GOLField) e.getComponent()).setBackground(Color.PINK);
 				}
 			} else {
 				JOptionPane.showMessageDialog(mainArray, "Component selected which was not a GOLField");
@@ -164,8 +193,7 @@ public class GameOfLife extends JFrame {
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			// TODO Auto-generated method stub
-
+			mouseclicked = false;
 		}
 	}
 
@@ -182,6 +210,16 @@ public class GameOfLife extends JFrame {
 		for (int j = 0; j < GOLyDim; j++) {
 			for (int i = 0; i < GOLxDim; i++) {
 				fields[i][j].writeOldState();
+			}
+		}
+	}
+	
+	public void clearAll() {
+		for (int j = 0; j < GOLyDim; j++) {
+			for (int i = 0; i < GOLxDim; i++) {
+				fields[i][j].state = false;
+				fields[i][j].oldState = false;
+				fields[i][j].setBackground(Color.WHITE);
 			}
 		}
 	}
@@ -217,7 +255,7 @@ public class GameOfLife extends JFrame {
 	}
 	
 	public static void main(String[] args) {
-		GameOfLife main = new GameOfLife(30,30);
+		GameOfLife main = new GameOfLife(100, 100);
 	}
 
 }
